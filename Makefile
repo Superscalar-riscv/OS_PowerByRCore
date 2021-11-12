@@ -17,9 +17,9 @@ KERNEL_ENTRY = 0x80200000
 
 # Cross Compilers
 include riscv64.mk
-AS        = $(CCACHE) $(CROSS_COMPILE)gcc
-CC        = $(CCACHE) $(CROSS_COMPILE)gcc
-CXX       = $(CCACHE) $(CROSS_COMPILE)g++
+AS        = $(CROSS_COMPILE)gcc
+CC        = $(CROSS_COMPILE)gcc
+CXX       = $(CROSS_COMPILE)g++
 LD        = $(CROSS_COMPILE)ld
 OBJDUMP   = $(CROSS_COMPILE)objdump
 OBJCOPY   = $(CROSS_COMPILE)objcopy
