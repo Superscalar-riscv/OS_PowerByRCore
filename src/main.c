@@ -8,7 +8,8 @@ int main()
 {
   clear_bss();
   printf("Hello World\n");
-  panic("main call panic\n");
+  DEBUG("DEBUG TEST\n");
+  panic("panic test\n");
   shutdown();
   return 0;
 }
