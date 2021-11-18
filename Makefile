@@ -24,8 +24,8 @@ LD        = $(CROSS_COMPILE)ld
 OBJDUMP   = $(CROSS_COMPILE)objdump
 OBJCOPY   = $(CROSS_COMPILE)objcopy
 
-INC_PATH += $(WORK_DIR)/include 
-SRCs = $(shell find src/ -name "*.[cS]")
+INC_PATH += $(WORK_DIR)/os/include 
+SRCs = $(shell find os/src/ -name "*.[cS]")
 OBJS = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
 LINKAGE = $(OBJS)
 
