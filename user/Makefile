@@ -2,6 +2,17 @@
 # mini os 
 # =================
 
+
+# Cross Compilers
+CROSS_COMPILE = riscv64-unknown-elf-
+AS        = $(CROSS_COMPILE)gcc
+CC        = $(CROSS_COMPILE)gcc
+CXX       = $(CROSS_COMPILE)g++
+LD        = $(CROSS_COMPILE)ld
+OBJDUMP   = $(CROSS_COMPILE)objdump
+OBJCOPY   = $(CROSS_COMPILE)objcopy
+
+
 ARCH = riscv64
 WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
@@ -14,19 +25,11 @@ IMAGE = $(abspath $(IMAGE_REL))
 BOOTLOADER = ./bootloader/rustsbi-qemu.bin
 KERNEL_ENTRY = 0x80200000
 
-
-# Cross Compilers
-include riscv64.mk
-AS        = $(CROSS_COMPILE)gcc
-CC        = $(CROSS_COMPILE)gcc
-CXX       = $(CROSS_COMPILE)g++
-LD        = $(CROSS_COMPILE)ld
-OBJDUMP   = $(CROSS_COMPILE)objdump
-OBJCOPY   = $(CROSS_COMPILE)objcopy
-
-INC_PATH += $(WORK_DIR)/os/include 
+INC_PATH += $(WORK_DIR)/include 
 SRCs = $(shell find os/src/ -name "*.[cS]")
 OBJS = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
+LIBs := $(sort libc)
+
 LINKAGE = $(OBJS)
 
 # -Wall 输出较多的警告讯息，以便找出程式的错误
@@ -43,10 +46,9 @@ ASFLAGS  += -MMD -I$(INC_PATH)
 LDFLAGS += -T ./linker.ld -melf64lriscv
 
 
-
 # ====================
 # compile rule
-# ====================
+
 $(DST_DIR)/%.o: %.c
 	mkdir -p $(dir $@) 
 	@echo + GCC $<
@@ -56,6 +58,9 @@ $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
+# 
+$(LIBS): %:
+
 # ====================
 
 $(IMAGE).elf: $(OBJS)
@@ -64,7 +69,7 @@ $(IMAGE).elf: $(OBJS)
 	$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
 
 # generate bin dump.txt 
-image: $(IMAGE).elf
+build: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
@@ -74,15 +79,17 @@ image: $(IMAGE).elf
 # --set-section-flags <name>=<flags>: Set section <name>'s properties to <flags>
 # -O --output-target <bfdname>: Create an output file in format <bfdname>
 
-# TODO: 
-run: image
-	@qemu-system-riscv64 --machine virt -nographic -bios $(BOOTLOADER) -device \
+# -------------------------------
+# run usr program on qemu-riscv64
+run: build
+	@echo run qemu-riscv64
+	@qemu-riscv64 --machine virt -nographic -bios $(BOOTLOADER) -device \
 		loader,file=$(IMAGE).bin,addr=$(KERNEL_ENTRY)
 
-gdb: image
+gdb: build
 
 
 clean:
 	-rm -rf $(BUILD_DIR) 
 
-.PHONY: run gdb image clean
+.PHONY: run gdb build clean
