@@ -27,11 +27,15 @@ KERNEL_ENTRY = 0x80200000
 
 INC_PATH += $(WORK_DIR)/include 
 SRCs = $(shell find os/src/ -name "*.[cS]")
-OBJS = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
-LIBs := $(sort libc)
+OBJs = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
+LIB_NAME := libc
 
-LINKAGE = $(OBJS)
+LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
+	$(addprefix $(OS_HOME)/, $(LIB_NAME))), \
+	$(LIB_NAME) ))
 
+LINKAGE = $(OBJs) $(LIbs)
+  
 # -Wall 输出较多的警告讯息，以便找出程式的错误
 # -ffreestanding : 允许重新定义标准库里已经有的函数
 # -g : debug info
@@ -63,12 +67,12 @@ $(LIBS): %:
 
 # ====================
 
-$(IMAGE).elf: $(OBJS)
-	@echo $(OBJS)
+$(IMAGE).elf: $(OBJs)
+	@echo $(OBJs)
 	@echo + LD "->" $(IMAGE_REL).elf
 	$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
 
-# generate bin dump.txt 
+# elf -> bin dump.txt 
 build: $(IMAGE).elf
 	@$(OBJDUMP) -d $(IMAGE).elf > $(IMAGE).txt
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
