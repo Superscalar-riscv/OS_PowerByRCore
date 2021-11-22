@@ -1,5 +1,5 @@
 # =================
-# mini os 
+# compile make rule
 # =================
 
 
@@ -18,27 +18,20 @@ WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 DST_DIR   = $(WORK_DIR)/build/$(ARCH)
 
-IMAGE_REL = build/minios
-IMAGE = $(abspath $(IMAGE_REL))
-
-# qemu 
-BOOTLOADER = ./bootloader/rustsbi-qemu.bin
-KERNEL_ENTRY = 0x80200000
 
 INC_PATH += $(WORK_DIR)/include 
-SRCs = $(shell find src/ -name "*.[cS]")
 OBJs = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
-# LIB_NAME := libc
 
-# LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
-# 	$(addprefix $(OS_HOME)/, $(LIB_NAME))), \
-# 	$(LIB_NAME) ))
+LIB_NAME := libc
 
-LIB_DIR = $(abspath ../libc)
-ARCHIVE = $(LIB_DIR)/build/libc-$(ARCH).a
+LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
+	$(addprefix $(OS_HOME)/, $(LIB_NAME))), \
+	$(LIB_NAME) ))
+
+ARCHIVE = $(BUILD_DIR)/$(NAME)-$(ARCH).a
 
 LINKAGE = $(OBJs) $(ARCHIVE)
-  
+
 # -Wall 输出较多的警告讯息，以便找出程式的错误
 # -ffreestanding : 允许重新定义标准库里已经有的函数
 # -g : debug info
@@ -73,6 +66,8 @@ $(ARCHIVE): $(OBJS)
 	
 
 # ====================
+$(LIBS): %:
+	@$(MAKE) -s -C $(Project)/$* archive
 
 $(IMAGE).elf: $(OBJs)
 	@echo + LD "->" $(IMAGE_REL).elf
@@ -84,26 +79,13 @@ build: $(IMAGE).elf
 	@echo + OBJCOPY "->" $(IMAGE_REL).bin
 	@$(OBJCOPY) -S --set-section-flags .bss=alloc,contents -O binary $(IMAGE).elf $(IMAGE).bin
 
+archive: $(ARCHIVE)
+
 # objcopy arguments
 # -S: Remove all symbol and relocation information
 # --set-section-flags <name>=<flags>: Set section <name>'s properties to <flags>
 # -O --output-target <bfdname>: Create an output file in format <bfdname>
 
-# -------------------------------
-# make target
-archive: $(ARCHIVE)
-
-
-# run usr program on qemu-riscv64
-run: build
-	@echo run qemu-riscv64
-	@qemu-riscv64 --machine virt -nographic -bios $(BOOTLOADER) -device \
-		loader,file=$(IMAGE).bin,addr=$(KERNEL_ENTRY)
-
-gdb: build
-
-
 clean:
-	-rm -rf $(BUILD_DIR) 
-
-.PHONY: run gdb build clean
+	rm -rf $(BUILD_DIR)
+.PHONY: build archive cleam
