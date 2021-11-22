@@ -18,6 +18,8 @@ WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
 DST_DIR   = $(WORK_DIR)/build/$(ARCH)
 
+IMAGE_REL = build/$(NAME)-$(ARCH)
+IMAGE = $(abspath $(IMAGE_REL))
 
 INC_PATH += $(WORK_DIR)/include 
 OBJs = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
