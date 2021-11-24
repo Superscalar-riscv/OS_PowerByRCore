@@ -15,8 +15,7 @@ int64 sbi_call(uint64 id, uint64 a0, uint64 a1, uint64 a2) {
       "mv %0, a0\n"
       :"=r"(ret)
       :"r"(a0), "r"(a1), "r"(a2), "r"(id)
-      :"memory", "a0", "a1", "a2", "a7"
-  );
+      :"memory", "a0", "a1", "a2", "a7");
   return ret;
 }
 

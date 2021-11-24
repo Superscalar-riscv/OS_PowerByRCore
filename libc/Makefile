@@ -1,7 +1,11 @@
-Project = ..
+
 
 NAME = libc
 SRCs = $(shell find src/ -name "*.c")
 
+
+default: archive
+.PHONY: default 
+
 # compile 
-include $(Project)/compile.mk
+include $(OS_HOME)/compile.mk

@@ -121,7 +121,7 @@ extern void write(int fd, void *buf, int len);
 // putchar function to console
 inline void _putchar(char character) {
   //console_putchar(character);
-  write(STDOUT, &character, 1)
+  write(STDOUT, &character, 1);
 }
 
 // output function type

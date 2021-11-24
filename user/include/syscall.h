@@ -1,9 +1,10 @@
+#include <stdint.h>
 
 // syscall event id
 #define SYSCALL_WRITE 64
 #define SYSCALL_EXIT 93
 
-int syscall(int id, int a0, int a1, int a2);
+int64_t syscall(int id, uint64_t a0, uint64_t a1, uint64_t a2);
 
 
 /**

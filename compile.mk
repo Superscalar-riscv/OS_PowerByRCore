@@ -21,7 +21,6 @@ DST_DIR   = $(WORK_DIR)/build/$(ARCH)
 IMAGE_REL = build/$(NAME)-$(ARCH)
 IMAGE = $(abspath $(IMAGE_REL))
 
-INC_PATH += $(WORK_DIR)/include 
 OBJs = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
 
 LIB_NAME := libc
@@ -32,48 +31,50 @@ LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
 
 ARCHIVE = $(BUILD_DIR)/$(NAME)-$(ARCH).a
 
-LINKAGE = $(OBJs) $(ARCHIVE)
+LINKAGE = $(OBJs) $(LIBs)
 
+INC_PATH += $(WORK_DIR)/include $(addsuffix /include/, $(addprefix $(OS_HOME)/, $(LIB_NAME)))
+INCFLAGS += $(addprefix -I, $(INC_PATH))
 # -Wall 输出较多的警告讯息，以便找出程式的错误
 # -ffreestanding : 允许重新定义标准库里已经有的函数
 # -g : debug info
-# -I: 
-# -mcmodel: TODO: 
+# -I : 
+# -mcmodel : TODO: 
 # -march 
-CFLAGS += -ffreestanding -g -Wall -I$(INC_PATH) -mcmodel=medany -march=rv64g
+CFLAGS += -ffreestanding -g -Wall $(INCFLAGS) -mcmodel=medany -march=rv64g
 ASFLAGS  += -MMD -I$(INC_PATH)
 
 # -T FILE, --script FILE      Read linker script
 # -melf64lriscv : TODO:
 LDFLAGS += -T ./linker.ld -melf64lriscv
 
-
+default: build
 # ====================
 # compile rule
 
 $(DST_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) 
 	@echo + GCC $<
-	$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
+	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
 
 $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 # Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
-$(ARCHIVE): $(OBJS)
+$(ARCHIVE): $(OBJs)
 	@mkdir -p $(dir $@)
-	@echo + AR "->" $(ARCHIVE)
-	@ar -rcs $(ARCHIVE) $(OBJS)
+	@echo + AR "->" $(ARCHIVE) $(OBJs)
+	@ar -rcs $(ARCHIVE) $(OBJs)
 	
 
 # ====================
-$(LIBS): %:
-	@$(MAKE) -s -C $(Project)/$* archive
+$(LIB_NAME): %:
+	@$(MAKE) -s -C $(OS_HOME)/$* archive
 
-$(IMAGE).elf: $(OBJs)
-	@echo + LD "->" $(IMAGE_REL).elf
-	$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
+$(IMAGE).elf: $(OBJs) $(LIB_NAME)
+	@echo + LD "->" $(IMAGE_REL).elf 
+	@$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
 
 # elf -> bin dump.txt 
 build: $(IMAGE).elf
@@ -88,6 +89,12 @@ archive: $(ARCHIVE)
 # --set-section-flags <name>=<flags>: Set section <name>'s properties to <flags>
 # -O --output-target <bfdname>: Create an output file in format <bfdname>
 
+# run usr program on qemu-riscv64
+run-unos: $(IMAGE).elf
+	@echo run qemu-riscv64
+	@qemu-riscv64 $(IMAGE).elf
+
 clean:
 	rm -rf $(BUILD_DIR)
-.PHONY: build archive cleam
+
+.PHONY: build archive cleam $(LIB_NAME) run-unos

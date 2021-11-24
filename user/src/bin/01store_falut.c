@@ -1,4 +1,5 @@
 #include "printf.h"
+#include <stdint.h>
 
 int main() {
   printf("Test store_fault, we will insert an invalid store operation...\n");

@@ -4,13 +4,18 @@
 
 #include "syscall.h"
 
-int syscall(int id, int a0, int a1, int a2) {
-  int ret;
-  asm volatile("ecall"
-                : "={x10}" (ret)
-                : "{x10}" (a0), "{x11}" (a1), "{x12}" (a2), "{x17}" (id)
-                : "memory"
-              );
+int64_t syscall(int id, uint64_t a0, uint64_t a1, uint64_t a2) {
+  int64_t ret;
+  asm volatile (
+      "mv a0, %1\n"
+      "mv a1, %2\n"
+      "mv a2, %3\n"
+      "mv a7, %4\n"
+      "ecall\n"
+      "mv %0, a0\n"
+      :"=r"(ret)
+      :"r"(a0), "r"(a1), "r"(a2), "r"(id)
+      :"memory", "a0", "a1", "a2", "a7");
   return ret;
 }
 
@@ -24,7 +29,7 @@ int syscall(int id, int a0, int a1, int a2) {
  * syscall ID：64
  */
 unsigned int sys_write(unsigned int fd, void *buf, unsigned int len) {
-  return syscall(SYSCALL_WRITE, fd, buf, len);
+  return syscall(SYSCALL_WRITE, fd, (uint64_t)buf, len);
 }
 
 unsigned int sys_exit(unsigned int state) {
