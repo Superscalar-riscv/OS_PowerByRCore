@@ -4,7 +4,7 @@
 
 
 void write(int fd, void *buf, int len) {
-  sys_write(fd, &buf, len);
+  sys_write(fd, buf, len);
 }
 
 void exit(int exit_code) {
