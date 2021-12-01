@@ -42,6 +42,7 @@ INCFLAGS += $(addprefix -I, $(INC_PATH))
 # -mcmodel : TODO: 
 # -march 
 CFLAGS += -ffreestanding -g -Wall $(INCFLAGS) -mcmodel=medany -march=rv64g
+CXXFLAGS +=  $(CFLAGS) -fno-rtti -fno-exceptions
 ASFLAGS  += -MMD -I$(INC_PATH)
 
 # -T FILE, --script FILE      Read linker script
@@ -56,6 +57,11 @@ $(DST_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) 
 	@echo + GCC $<
 	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
+
+### Rule (compile): a single `.cpp` -> `.o` (g++)
+$(DST_DIR)/%.o: %.cpp
+	@mkdir -p $(dir $@) && echo + CXX $<
+	@$(CXX) -std=c++17 $(CXXFLAGS) -c -o $@ $(realpath $<)
 
 $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
