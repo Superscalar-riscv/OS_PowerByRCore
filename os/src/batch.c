@@ -58,9 +58,8 @@ uintptr_t user_get_sp() {
 // push context
 TrapContext* kernel_stack_push_context(TrapContext *cx) 
 {
-  uintptr_t kernel_sp = kernel_get_sp();
   // push TrapContext to kernel stack
-  TrapContext *context_ptr = (TrapContext *)kernel_sp - 1;
+  TrapContext *context_ptr = (TrapContext *)kernel_get_sp() - 1;
   *context_ptr = *cx;
   return context_ptr;
 }
@@ -82,9 +81,10 @@ void run_next_app() {
   load_app(current_app);
   move_to_next_app();
   extern void __restore(uintptr_t sp);
-  // app_init
-  TrapContext *app_context = 
-    app_init_context(app_manager.app_start[current_app], user_get_sp());
+  // app init
+  TrapContext *app_contextcd = 
+    app_init_context(app_manager.app_start[current_app], user_get_sp(),
+    (TrapContext *)kernel_get_sp() - 1);
   // push app stack to kernel stack
   uintptr_t kernel_sp = kernel_stack_push_context(app_context);
   // restore

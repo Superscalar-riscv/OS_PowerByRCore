@@ -26,4 +26,4 @@ typedef struct _TrapContext
   uint64_t sepc;
 }TrapContext;
 
-TrapContext* app_init_context(uint64_t entry, uint64_t sp);
+TrapContext* app_init_context(void *entry, uint64_t sp, TrapContext* cx);
