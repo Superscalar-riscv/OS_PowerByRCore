@@ -1,10 +1,11 @@
 #include <stdint.h>
-#include <context.h>
+
+#include <mod.h>
 
 // trap entry
 extern void __alltraps();
 
-bool init() {
+bool trap_init() {
   asm volatile("csrw stvec, %0" ::"r"(__alltraps));
   return true;
 }
