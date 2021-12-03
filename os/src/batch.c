@@ -1,11 +1,23 @@
 #include "batch.h"
 
+// 
 AppManager app_manager;
+// 内核栈和用户栈， 按4KB对齐
+KernelStack kernel_stack __attribute__ ((aligned(4096)));
+UserStack user_stack __attribute__ ((aligned(4096)));
 
 uint64_t get_current_app() {
   return app_manager.current_app;
 }
 
+uintptr_t kernel_get_sp() {
+  return (uintptr_t)kernel_stack.data + KERNEL_STACK_SIZE;
+}
+uintptr_t user_get_sp() {
+  return (uintptr_t)user_stack.data + KERNEL_STACK_SIZE;
+}
+
+// defined at link_app.S
 extern void* _num_app;
 
 void batch_init() {
@@ -22,22 +34,9 @@ void batch_init() {
 
 }
 
-
-// 
-KernelStack kernel_stack = {0};
-UserStack user_stack = {0};
-
-uintptr_t kernel_get_sp() {
-  return (uintptr_t)kernel_stack.data + KERNEL_STACK_SIZE;
-}
-uintptr_t user_get_sp() {
-  return (uintptr_t)user_stack.data + KERNEL_STACK_SIZE;
-}
-
-// push context
+// push context to kernel stack
 TrapContext* kernel_stack_push_context(TrapContext *cx) 
 {
-  // push TrapContext to kernel stack
   TrapContext *context_ptr = (TrapContext *)kernel_get_sp() - 1;
   *context_ptr = *cx;
   return context_ptr;
@@ -64,6 +63,7 @@ void load_app(uint64_t app_id) {
   memcpy((void*)APP_BASE_ADDRESS, (void*)app_start_addr, len);
 }
 
+// defined at trap.S
 extern void __restore(uintptr_t sp);
 void run_next_app() {
   int current_app = get_current_app();
