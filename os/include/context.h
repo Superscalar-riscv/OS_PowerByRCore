@@ -1,3 +1,6 @@
+#ifndef __CONTEXT_H__
+#define __CONTEXT_H__
+
 #include <stdint.h>
 
 // Exeception NO
@@ -27,3 +30,5 @@ typedef struct _TrapContext
 }TrapContext;
 
 TrapContext* app_init_context(void *entry, uint64_t sp, TrapContext* cx);
+
+#endif

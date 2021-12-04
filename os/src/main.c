@@ -14,6 +14,6 @@ int main()
   // batch init
   batch_init();
   // run next app
-  run_next_app()
+  run_next_app();
   return 0;
 }

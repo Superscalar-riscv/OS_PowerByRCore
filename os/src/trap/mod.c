@@ -1,13 +1,16 @@
 #include <stdint.h>
-
 #include <mod.h>
+#include <debug.h>
+#include <syscall.h>
+#include <batch.h>
 
 // trap entry
 extern void __alltraps();
 
-bool trap_init() {
+int trap_init() {
   asm volatile("csrw stvec, %0" ::"r"(__alltraps));
-  return true;
+  // return 0 if init successfully 
+  return 0;
 }
 
 TrapContext* trap_handler(TrapContext* cx) {
@@ -22,7 +25,7 @@ TrapContext* trap_handler(TrapContext* cx) {
   {
   case UserEnvCall:
     cx->sepc += 4;
-    cx->reg[10] = syscall(cx.reg[17], cx.reg[10], cx.reg[11], cx.reg[12]);
+    cx->reg[10] = syscall(cx->reg[17], cx->reg[10], cx->reg[11], cx->reg[12]);
     break;
   case StoreFault:
   case StorePageFault:

@@ -1,7 +1,5 @@
-
-typedef unsigned int uint32;
-typedef long long int64;
-typedef unsigned long long uint64;
+#ifndef __COMMON_H__
+#define __COMMON_H__
 
 // ANSI color
 #define ANSI_NONE "\033[m"
@@ -20,3 +18,5 @@ typedef unsigned long long uint64;
 #define ANSI_YELLOW "\033[1;33m"
 #define ANSI_LIGHT_GRAY "\033[0;37m"
 #define ANSI_WHITE "\033[1;37m"
+
+#endif

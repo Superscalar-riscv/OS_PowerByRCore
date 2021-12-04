@@ -10,19 +10,22 @@ BASE_SRC = $(wildcard src/*.c)
 
 
 all: $(addprefix Makefile., $(APP))
-	@echo $(APP) complete!
+	@echo -e "\033[32m $(APP) complete!\033[0m"
 
 $(APP): %: Makefile.%
 
 Makefile.%: $(APP_DIR)/%.c 
-	@/bin/echo -e "NAME = $*\nSRCs = $< ${BASE_SRC}\nLIBs += libc\ninclude ${Project}/compile.mk" > $@
+	@/bin/echo -e "NAME = $*\nSRCs = $< ${BASE_SRC}\nLIBs += libc\nMODE:=USER\nLIB_MODE=NONE\ninclude ${Project}/compile.mk" > $@
 	-@make -s -f $@ $(MAKECMDGOALS)
 	-@rm -f Makefile.$*
 
 test:
 	@echo MAKECMDGOALS = $(MAKECMDGOALS)
 
-run-unos: all
+build: all
+	@echo -e "\033[32m build user bin \033[0m"
+
+run: all
 	@echo run on qemu-riscv64
 
 clean:

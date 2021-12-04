@@ -2,7 +2,7 @@
 
 TrapContext* app_init_context(void *entry, uint64_t sp, TrapContext* cx) {
   uint64_t sstatus;
-  asm volatile("csrr %0, status" : "=r"(sstatus) );
+  asm volatile("csrr %0, sstatus" : "=r"(sstatus) );
 
   // spp index = 8
   sstatus &= ~(1L << 8);
@@ -13,6 +13,6 @@ TrapContext* app_init_context(void *entry, uint64_t sp, TrapContext* cx) {
   
   cx->reg[2] = sp;
   cx->sstatus = sstatus;
-  cx->sepc = entry;
+  cx->sepc = (uint64_t)entry;
   return cx;
 }

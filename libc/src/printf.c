@@ -117,11 +117,19 @@
 #include <float.h>
 #endif
 
+#ifdef __KERNEL__
+extern void console_putchar(char c);
+#else
 extern void write(int fd, void *buf, int len);
+#endif
+
 // putchar function to console
 inline void _putchar(char character) {
-  //console_putchar(character);
+#ifdef __KERNEL__
+  console_putchar(character);
+#else
   write(STDOUT, &character, 1);
+#endif
 }
 
 // output function type

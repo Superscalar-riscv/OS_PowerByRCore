@@ -1,3 +1,6 @@
+#ifndef _BATCH_H_
+#define _BATCH_H_
+
 #include <stdint.h>
 #include <stdio.h>
 #include <context.h>
@@ -35,3 +38,4 @@ void move_to_next_app();
 void load_app(uint64_t app_id);
 void run_next_app();
 
+#endif

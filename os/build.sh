@@ -2,14 +2,15 @@
 
 # script to generate link_app.S 
 
-apps_path="../user/build/"
-script_text="./link_app.S"
+apps_path="${OS_HOME}/user/build/"
+script_text="./src/link_app.S"
 # function for find app file
 find_app_list() {
     let "num_apps=0"
     for bin in `find ${apps_path} -name "*.bin"`
     do
         app_list[num_apps]=${bin}
+        echo ${app_list[num_apps]}
         let num_apps+=1
     done
     return $num_apps
@@ -18,7 +19,7 @@ find_app_list() {
 echo -e "\033[32m build.sh: generate link_app.S \033[0m"
 find_app_list
 apps_len=$?
-
+echo len = $apps_len
 # script="src/link_app.S"
 cat > ${script_text} <<- EOF
 # os/src/link_app.S
@@ -35,14 +36,14 @@ int=0
 while(($int<$num_apps))
 do
 cat >> ${script_text} <<- EOF
-    .quad_${int}_start
+    .quad app_${int}_start
 EOF
     let "int++"
 done
 #app_*_end
 max_idx=`expr $num_apps - 1`
 cat >> ${script_text} <<- EOF
-    .quad_${max_idx}_end
+    .quad app_${max_idx}_end
 
 EOF
 

@@ -1,11 +1,10 @@
-#include "sbi.h"
-#include "common.h"
-#include "debug.h"
+#include <sbi.h>
+#include <debug.h>
 #include <stdarg.h>
 
 // 
-int64 sbi_call(uint64 id, uint64 a0, uint64 a1, uint64 a2) {
-  uint64 ret;
+int64_t sbi_call(uint64_t id, uint64_t a0, uint64_t a1, uint64_t a2) {
+  int64_t ret;
   asm volatile (
       "mv a0, %1\n"
       "mv a1, %2\n"
@@ -26,11 +25,6 @@ void clear_bss() {
   for (char *i = (char*)sbss; i < (char*)ebss; i++)
     *i = 0;
 }
-
-// void panic(const char *fmt, ...) {
-//   Log(fmt,  ## __VA_ARGS__);
-//   shutdown();
-// }
 
 void console_putchar(char c) {
   sbi_call(SBI_CONSOLE_PUTCHAR, c, 0, 0);

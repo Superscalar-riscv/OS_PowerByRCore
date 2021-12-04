@@ -1,4 +1,5 @@
-
+#ifndef __DEBUG_H__
+#define __DEBUG_H__
 #include "printf.h"
 #include "sbi.h"
 #include "common.h"
@@ -16,3 +17,5 @@
     LOG(ANSI_LIGHT_BLUE"Panicked at [%s,%d,%s] " fmt ANSI_NONE, __FILE__, __LINE__, __func__, ## __VA_ARGS__); \
     shutdown(); \
   } while (0)
+
+#endif
