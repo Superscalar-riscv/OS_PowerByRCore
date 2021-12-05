@@ -16,28 +16,27 @@ OBJCOPY   = $(CROSS_COMPILE)objcopy
 ARCH = riscv64
 WORK_DIR  = $(shell pwd)
 BUILD_DIR = $(WORK_DIR)/build
-DST_DIR   = $(WORK_DIR)/build/$(ARCH)
+DST_DIR  ?= $(WORK_DIR)/build/$(ARCH)
 
 IMAGE_REL = build/$(NAME)-$(ARCH)
 IMAGE = $(abspath $(IMAGE_REL))
 
-ifneq ($(LIB_MODE), NONE)
-OBJ_DIR := $(DST_DIR)/$(LIB_MODE)/
-else
-OBJ_DIR := $(DST_DIR)/
+ifdef LIB_MODE
+DST_DIR := $(BUILD_DIR)/$(ARCH)-$(LIB_MODE)
 endif
-OBJs = $(addprefix $(OBJ_DIR), $(addsuffix .o, $(basename $(SRCs))))
 
-LIB_NAME := libc-kernel libc-user
+OBJs = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
+
+LIB_NAME := libc
 
 LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
 	$(addprefix $(OS_HOME)/, $(LIB_NAME))), \
-	$(LIB_NAME)) ))
+	$(LIB_NAME)-$(MODE) ))
 
 test:
 	echo $(LIBs)
 
-ARCHIVE = $(BUILD_DIR)/$(NAME)-$(MODE)-riscv64.a
+ARCHIVE = $(BUILD_DIR)/$(NAME)-$(LIB_MODE)-riscv64.a
 
 LINKAGE = $(OBJs) $(LIBs)
 
@@ -84,7 +83,7 @@ $(ARCHIVE): $(OBJs)
 
 # ====================
 $(LIB_NAME): %:
-	@$(MAKE) -s -C $(OS_HOME)/$* LIB_MODE=$(MODE) archive
+	$(MAKE) -s -C $(OS_HOME)/$* LIB_MODE=$(MODE) archive
 
 $(IMAGE).elf: $(OBJs) $(LIB_NAME)
 	@echo + LD "->" $(IMAGE_REL).elf 
@@ -103,13 +102,20 @@ build: $(IMAGE).elf
 
 archive: $(ARCHIVE)
 
+user_bin: 
+	make -C ../user/ build
 
 # run os on 
-run: build 
-	make -C ../user/ build
+run: build user_bin
 	@echo -e "\033[32m run os on qemu-system-riscv64 \033[0m"
 	@qemu-system-riscv64 --machine virt -nographic -bios $(BOOTLOADER) -device \
 		loader,file=$(IMAGE).bin,addr=$(KERNEL_ENTRY)
+
+debug: build
+	@tmux new-session -d \
+		"qemu-system-riscv64 -machine virt -nographic -bios $(BOOTLOADER) -device loader,file=$(IMAGE).bin,addr=$(KERNEL_ENTRY) -s -S" && \
+		tmux split-window -h "riscv64-unknown-elf-gdb -ex 'file $(KERNEL_ELF)' -ex 'set arch riscv:rv64' -ex 'target remote localhost:1234'" && \
+		tmux -2 attach-session -d
 
 # run usr program on qemu-riscv64
 run-unos: build
@@ -120,4 +126,4 @@ clean:
 	rm -rf $(BUILD_DIR) $(OS_HOME)/libc/build
 
 
-.PHONY: build archive cleam $(LIB_NAME) run-unos
+.PHONY: build debug archive cleam $(LIB_NAME) run-unos user_bin

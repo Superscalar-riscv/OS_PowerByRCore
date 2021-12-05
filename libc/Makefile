@@ -3,14 +3,14 @@
 NAME = libc
 SRCs = $(shell find src/ -name "*.c")
 
+LIB_MODE ?= kernel
+ifeq ($(LIB_MODE), kernel)
+CFLAGS += -D__KERNEL__
+endif
 
 default: archive
 .PHONY: default 
 
-LIB_MODE = $(MODE)
-ifeq ($(MODE), KERNEL)
-CFLAGS += -D__KERNEL__
-endif
 
 # compile 
 include $(OS_HOME)/compile.mk

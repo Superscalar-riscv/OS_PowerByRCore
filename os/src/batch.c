@@ -21,9 +21,9 @@ uintptr_t user_get_sp() {
 
 // defined at link_app.S
 void batch_init() {
-  extern void* _num_app;
-  uint64_t* num_app_ptr = (uint64_t*)_num_app;
-
+  extern uint64_t _num_app;
+  uint64_t* num_app_ptr = &_num_app;
+  DEBUG("batch_init: num_app: %d\n", *num_app_ptr);
   for (int i = 0 ; i < MAX_APP_NUM; ++i) {
     app_manager.app_start[i] = num_app_ptr[i + 1];
   }
@@ -46,9 +46,9 @@ void move_to_next_app() {
 
 void load_app(uint64_t app_id) {
   if (app_id >= app_manager.num_app) {
-    panic("All application completed!");
+    panic("All application completed!\n");
   }
-  printf("[kernel] Loading app_%ld\n", app_id);
+  INFO("[kernel] Loading app_%ld\n", app_id);
   // clear icache
   asm volatile("fence.i");
   //clear app area

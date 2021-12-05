@@ -3,7 +3,7 @@
 # =================
 
 # qemu 
-BOOTLOADER = ./bootloader/rustsbi-qemu.bin
+BOOTLOADER = ../bootloader/rustsbi-qemu.bin
 
 # kernel config
 KERNEL_ENTRY = 0x80200000
@@ -20,8 +20,7 @@ SRCs = $(shell find src/ -name "*.[cS]")
 
 # the script to generate link_app.S
 script = ./build.sh
-MODE := KERNEL
-LIB_MODE := NONE
+MODE := kernel
 
 # compile.mk responsed to comiple src to elf
 include $(OS_HOME)/compile.mk

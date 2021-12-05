@@ -29,15 +29,15 @@ TrapContext* trap_handler(TrapContext* cx) {
     break;
   case StoreFault:
   case StorePageFault:
-    DEBUG("[kernel] PageFault in application, core dumped.");
+    DEBUG("[kernel] PageFault in application, core dumped.\n");
     run_next_app();
     break;
   case IllegalInstruction: 
-    DEBUG("[kernel] IllegalInstruction in application, core dumped.");
+    DEBUG("[kernel] IllegalInstruction in application, core dumped.\n");
     run_next_app();
     break;
   default:
-    panic("Unsupported trap %ld, stval = %ld", scause, stval);
+    panic("Unsupported trap: scause = 0x%lx, stval = 0x%lx\n", scause, stval);
     break;
   }
 

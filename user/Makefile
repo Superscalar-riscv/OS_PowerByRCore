@@ -15,7 +15,7 @@ all: $(addprefix Makefile., $(APP))
 $(APP): %: Makefile.%
 
 Makefile.%: $(APP_DIR)/%.c 
-	@/bin/echo -e "NAME = $*\nSRCs = $< ${BASE_SRC}\nLIBs += libc\nMODE:=USER\nLIB_MODE=NONE\ninclude ${Project}/compile.mk" > $@
+	@/bin/echo -e "NAME = $*\nSRCs = $< ${BASE_SRC}\nLIBs += libc\nMODE=user\nLIB_MODE=NONE\ninclude ${Project}/compile.mk" > $@
 	-@make -s -f $@ $(MAKECMDGOALS)
 	-@rm -f Makefile.$*
 

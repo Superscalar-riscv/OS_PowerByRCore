@@ -7,10 +7,9 @@ script_text="./src/link_app.S"
 # function for find app file
 find_app_list() {
     let "num_apps=0"
-    for bin in `find ${apps_path} -name "*.bin"`
+    for bin in `find ${apps_path} -name "*.bin" | sort`
     do
         app_list[num_apps]=${bin}
-        echo ${app_list[num_apps]}
         let num_apps+=1
     done
     return $num_apps

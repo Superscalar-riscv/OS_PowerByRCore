@@ -2,7 +2,7 @@
 
 int main() 
 {
-  printf("Hello World\n");
+  printf("[user] Hello World\n");
   asm volatile("sret");
   return 0;
 }

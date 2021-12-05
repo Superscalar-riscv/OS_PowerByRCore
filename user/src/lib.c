@@ -1,5 +1,5 @@
-
-#include <printf.h>
+#include <stdio.h>
+#include <syscall.h>
 
 // __attribute__((weak)) weak link character
 __attribute__((weak)) int main() {
@@ -17,7 +17,6 @@ void clear_bss() {
 __attribute__((section(".text.entry"))) void _start()
 {
   clear_bss();
-  extern void exit(int exit_code);
   exit(main());
   printf("unreachable after sys_exit!");
 }

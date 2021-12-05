@@ -1,3 +1,5 @@
+#ifndef _SYSCALL_H_
+#define _SYSCALL_H_
 #include <stdint.h>
 
 // syscall event id
@@ -18,3 +20,5 @@ int64_t syscall(int id, uint64_t a0, uint64_t a1, uint64_t a2);
 unsigned int sys_write(unsigned int fd, void *buf, unsigned int len);
 
 unsigned int sys_exit(unsigned int state);
+
+#endif
