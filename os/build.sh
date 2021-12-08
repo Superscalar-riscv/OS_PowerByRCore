@@ -2,7 +2,7 @@
 
 # script to generate link_app.S 
 
-apps_path="${OS_HOME}/user/build/"
+apps_path="../user/build/"
 script_text="./src/link_app.S"
 # function for find app file
 find_app_list() {

@@ -30,7 +30,7 @@ OBJs = $(addprefix $(DST_DIR)/, $(addsuffix .o, $(basename $(SRCs))))
 LIB_NAME := libc
 
 LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
-	$(addprefix $(OS_HOME)/, $(LIB_NAME))), \
+	$(addprefix $(Project)/, $(LIB_NAME))), \
 	$(LIB_NAME)-$(MODE) ))
 
 
@@ -38,7 +38,7 @@ ARCHIVE = $(BUILD_DIR)/$(NAME)-$(LIB_MODE)-riscv64.a
 
 LINKAGE = $(OBJs) $(LIBs)
 
-INC_PATH += $(WORK_DIR)/include $(addsuffix /include/, $(addprefix $(OS_HOME)/, $(LIB_NAME)))
+INC_PATH += $(WORK_DIR)/include $(addsuffix /include/, $(addprefix $(Project)/, $(LIB_NAME)))
 INCFLAGS += $(addprefix -I, $(INC_PATH))
 # -Wall 输出较多的警告讯息，以便找出程式的错误
 # -ffreestanding : 允许重新定义标准库里已经有的函数
@@ -54,10 +54,6 @@ ASFLAGS  += -MMD -I$(INC_PATH)
 # -melf64lriscv : TODO:
 LDFLAGS += -T ./linker.ld -melf64lriscv
 
-test:
-	@echo $(SRCs)
-	@echo $(OBJs)
-
 default: build
 # ====================
 # compile rule
@@ -65,6 +61,7 @@ default: build
 $(DST_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) 
 	@echo + GCC $<
+	@echo $(notdir $(OBJs))
 	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
 
 ### Rule (compile): a single `.cpp` -> `.o` (g++)
@@ -74,6 +71,7 @@ $(DST_DIR)/%.o: %.cpp
 
 $(DST_DIR)/%.o: %.S
 	@mkdir -p $(dir $@) && echo + AS $<
+	@echo $(notdir $(OBJs))
 	@$(AS) $(ASFLAGS) -c -o $@ $(realpath $<)
 
 # Rule (archive): objects (`*.o`) -> `ARCHIVE.a` (ar)
@@ -85,7 +83,7 @@ $(ARCHIVE): $(OBJs)
 
 # ====================
 $(LIB_NAME): %:
-	$(MAKE) -s -C $(OS_HOME)/$* LIB_MODE=$(MODE) archive
+	$(MAKE) -s -C $(Project)/$* LIB_MODE=$(MODE) archive
 
 $(IMAGE).elf: $(OBJs) $(LIB_NAME)
 	@echo + LD "->" $(IMAGE_REL).elf 
@@ -121,8 +119,9 @@ run-unos: build
 	@echo "\033[32m run user elf on qemu-riscv64 \033[0m"
 	@qemu-riscv64 $(IMAGE).elf
 
+ALLBUILD += $(BUILD_DIR)
 clean:
-	rm -rf $(BUILD_DIR) $(OS_HOME)/libc/build $(LINK_APP_S)
+	rm -rf $(ALLBUILD)
 
 
 .PHONY: build debug archive cleam $(LIB_NAME) run-unos user_bin
