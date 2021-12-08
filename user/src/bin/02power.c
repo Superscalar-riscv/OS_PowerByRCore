@@ -6,6 +6,7 @@
 #define MOD 10007
 
 int main() {
+  printf("Test power start...\n");
   unsigned pow[SIZE];
   unsigned index = 0;
   pow[index] = 1;

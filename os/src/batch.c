@@ -19,17 +19,25 @@ uintptr_t user_get_sp() {
   return (uintptr_t)user_stack.data + KERNEL_STACK_SIZE;
 }
 
+void printAppInfo() {
+  INFO("The Apps Num: %d\n", app_manager.num_app);
+  for (size_t i = 0; i < app_manager.num_app; i++) {
+    INFO("App[%d] => [0x%lx, 0x%lx]\n", i, app_manager.app_start[i], app_manager.app_start[i+1]);
+  }
+}
+
 // defined at link_app.S
 void batch_init() {
   extern uint64_t _num_app;
   uint64_t* num_app_ptr = &_num_app;
   DEBUG("batch_init: num_app: %d\n", *num_app_ptr);
-  for (int i = 0 ; i < MAX_APP_NUM; ++i) {
+  for (int i = 0 ; i < MAX_APP_NUM + 1; ++i) {
     app_manager.app_start[i] = num_app_ptr[i + 1];
   }
   app_manager.num_app = *num_app_ptr;
   app_manager.current_app = 0;
-
+  // print all apps info
+  printAppInfo();
 }
 
 // push context to kernel stack

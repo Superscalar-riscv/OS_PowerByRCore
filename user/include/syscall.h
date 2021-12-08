@@ -8,7 +8,9 @@
 
 int64_t syscall(int id, uint64_t a0, uint64_t a1, uint64_t a2);
 
+void write(int fd, void *buf, int len);
 
+void exit(int exit_code);
 /**
  * 功能：将内存中缓冲区中的数据写入文件。
  * 参数：`fd` 表示待写入文件的文件描述符；

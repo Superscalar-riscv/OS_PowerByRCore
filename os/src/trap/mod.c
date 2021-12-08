@@ -21,6 +21,7 @@ TrapContext* trap_handler(TrapContext* cx) {
                "csrr %1, stval\n"
                : "=r"(scause), "=r"(stval));
 
+  // DEBUG("trap handler: scause=0x%lx\n", scause);
   switch (scause)
   {
   case UserEnvCall:

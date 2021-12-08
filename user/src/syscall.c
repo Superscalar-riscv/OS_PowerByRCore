@@ -3,6 +3,7 @@
  */
 
 #include "syscall.h"
+#include <stdio.h>
 
 int64_t syscall(int id, uint64_t a0, uint64_t a1, uint64_t a2) {
   int64_t ret;
@@ -33,5 +34,6 @@ unsigned int sys_write(unsigned int fd, void *buf, unsigned int len) {
 }
 
 unsigned int sys_exit(unsigned int state) {
+  printf("state=%d\n", state);
   return syscall(SYSCALL_EXIT, state, 0, 0);
 }

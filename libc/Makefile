@@ -13,4 +13,4 @@ default: archive
 
 
 # compile 
-include $(OS_HOME)/compile.mk
+include ../compile.mk

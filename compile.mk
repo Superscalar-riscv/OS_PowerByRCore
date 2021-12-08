@@ -33,8 +33,6 @@ LIBs = $(addsuffix -riscv64.a, $(join $(addsuffix /build/, \
 	$(addprefix $(OS_HOME)/, $(LIB_NAME))), \
 	$(LIB_NAME)-$(MODE) ))
 
-test:
-	echo $(LIBs)
 
 ARCHIVE = $(BUILD_DIR)/$(NAME)-$(LIB_MODE)-riscv64.a
 
@@ -56,6 +54,10 @@ ASFLAGS  += -MMD -I$(INC_PATH)
 # -melf64lriscv : TODO:
 LDFLAGS += -T ./linker.ld -melf64lriscv
 
+test:
+	@echo $(SRCs)
+	@echo $(OBJs)
+
 default: build
 # ====================
 # compile rule
@@ -63,7 +65,7 @@ default: build
 $(DST_DIR)/%.o: %.c
 	@mkdir -p $(dir $@) 
 	@echo + GCC $<
-	$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
+	@$(CC) -std=gnu11 $(CFLAGS) -c -o $@ $(realpath $<)
 
 ### Rule (compile): a single `.cpp` -> `.o` (g++)
 $(DST_DIR)/%.o: %.cpp
@@ -87,7 +89,7 @@ $(LIB_NAME): %:
 
 $(IMAGE).elf: $(OBJs) $(LIB_NAME)
 	@echo + LD "->" $(IMAGE_REL).elf 
-	@$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
+	$(LD) $(LDFLAGS) -o $(IMAGE).elf --start-group $(LINKAGE) --end-group
 
 # objcopy arguments
 # -S: Remove all symbol and relocation information
@@ -102,11 +104,8 @@ build: $(IMAGE).elf
 
 archive: $(ARCHIVE)
 
-user_bin: 
-	make -C ../user/ build
-
 # run os on 
-run: build user_bin
+run: build
 	@echo -e "\033[32m run os on qemu-system-riscv64 \033[0m"
 	@qemu-system-riscv64 --machine virt -nographic -bios $(BOOTLOADER) -device \
 		loader,file=$(IMAGE).bin,addr=$(KERNEL_ENTRY)
@@ -123,7 +122,7 @@ run-unos: build
 	@qemu-riscv64 $(IMAGE).elf
 
 clean:
-	rm -rf $(BUILD_DIR) $(OS_HOME)/libc/build
+	rm -rf $(BUILD_DIR) $(OS_HOME)/libc/build $(LINK_APP_S)
 
 
 .PHONY: build debug archive cleam $(LIB_NAME) run-unos user_bin

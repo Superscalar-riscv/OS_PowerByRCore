@@ -18,7 +18,6 @@ find_app_list() {
 echo -e "\033[32m build.sh: generate link_app.S \033[0m"
 find_app_list
 apps_len=$?
-echo len = $apps_len
 # script="src/link_app.S"
 cat > ${script_text} <<- EOF
 # os/src/link_app.S

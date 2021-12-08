@@ -7,7 +7,7 @@
 int main()
 {
   clear_bss();
-  LOG("[kernel] Hello World!\n");
+  LOG("[kernel] Hi! Welcome to OS!\n");
   // trap init
   trap_init();
   // batch init
